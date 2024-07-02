@@ -2,11 +2,16 @@ import React from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import axios, {AxiosResponse} from "axios";
 import {setTokensInCookies} from "../lib/auth.ts";
+import { z } from "zod";
+import {zodResolver} from "@hookform/resolvers/zod";
+import {Form, FormControl, FormField, FormItem, FormLabel} from "./ui/form.tsx";
+import {Input} from "./ui/input.tsx";
+import {Button} from "./ui/button.tsx";
 
-type Inputs = {
-    email: string;
-    password: string;
-};
+const formSchema = z.object({
+    email: z.string().email(),
+    password: z.string().min(8).max(20).regex(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$/),
+});
 
 type Response = {
     accessToken: string;
@@ -14,9 +19,16 @@ type Response = {
 };
 
 function Login(): React.ReactElement {
-    const { register, handleSubmit, formState: { errors } } = useForm<Inputs>();
+    const form = useForm<z.infer<typeof formSchema>>({
+        resolver: zodResolver(formSchema),
+        defaultValues: {
+            email: "",
+            password: ""
+        }
+    });
     
-    const onLogin: SubmitHandler<Inputs> = (data: Inputs) => {
+    const onLogin: SubmitHandler<z.infer<typeof formSchema>> = (data: z.infer<typeof formSchema>) => {
+        console.log(data);
         axios.post("http://localhost:3000/api/user/login", data)
             .then((response: AxiosResponse<Response>) => {
                 setTokensInCookies(response.data.accessToken, response.data.refreshToken)
@@ -29,20 +41,27 @@ function Login(): React.ReactElement {
     
     return (
         <div>
-            <h2 className="text-2xl font-bold mb-4">Login</h2>
-            <form onSubmit={handleSubmit(onLogin)}>
-                <input className="w-full p-2 mb-4 border rounded" type="email" placeholder="Email" {...register("email", { required: true })} />
-                <input className="w-full p-2 mb-4 border rounded" type="password" placeholder="Password" {...register("password", { required: true })} />
-                
-                <div>{errors.email && <span>This field is required</span>}</div>
-                <div>{errors.password && <span>This field is required</span>}</div>
-                <div>{errors.password && errors.password.type === "minLength" && <span>Min length is 8</span>}</div>
-                <div>{errors.password && errors.password.type === "maxLength" && <span>Max length is 20</span>}</div>
-                <div>{errors.password && errors.password.type === "pattern" && <span>Must contain at least one number and one uppercase and lowercase letter, and at least 8 or more characters</span>}</div>
-                <div>{errors.email && errors.email.type === "pattern" && <span>Invalid email</span>}</div>
-                
-                <input type="submit" />
-            </form>
+            <Form {...form}>
+                <form onSubmit={form.handleSubmit(onLogin)} className={"space-y-8"}>
+                    <FormField control={form.control} name={"email"} render={({field}) => (
+                        <FormItem>
+                            <FormLabel>Email</FormLabel>
+                            <FormControl>
+                                <Input {...field} />
+                            </FormControl>
+                        </FormItem>
+                    )} />
+                    <FormField control={form.control} name={"password"} render={({field}) => (
+                        <FormItem>
+                            <FormLabel>Password</FormLabel>
+                            <FormControl>
+                                <Input type="password" {...field} />
+                            </FormControl>
+                        </FormItem>
+                    )} />
+                    <Button type="submit">Login</Button>
+                </form>
+            </Form>
         </div>
     );
 }
