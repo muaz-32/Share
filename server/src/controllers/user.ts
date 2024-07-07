@@ -1,7 +1,6 @@
 import { userService } from "../services/user";
 import { Request, Response } from "express";
 import {tokenService} from "../services/token";
-import {AuthJwtPayload} from "../types";
 
 const signup = async (req: Request, res: Response) => {
     const { email, password } = req.body;

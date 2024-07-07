@@ -1,11 +1,9 @@
-import { PrismaClient, User } from "@prisma/client";
-import {CreateUserInput} from "../types";
+import { User } from "@prisma/client";
+import {prisma} from "../prisma";
 
-const prisma = new PrismaClient();
-
-const createUser = async (data: CreateUserInput): Promise<User> => {
+const createUser = async (data: Omit<User, "id">): Promise<User> => {
   return prisma.user.create({ data });
-};
+}
 
 const getUserByEmail = async (email: string): Promise<User | null> => {
   return prisma.user.findUnique({ where: { email } });
