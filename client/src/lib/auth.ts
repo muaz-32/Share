@@ -18,22 +18,21 @@ export async function makeAuthenticatedRequest<T>(url: string, method: "GET" | "
             body: JSON.stringify(data)
         });
 
-        if (response.status === 401) {
+        if (response.status === 403) {
             const response = await fetch("/api/refresh", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": `Bearer ${refreshToken}`
-                }
+                },
+                body: JSON.stringify({token: refreshToken}),
             });
 
             if (response.status === 200) {
                 const data = await response.json();
-                Cookies.set("accessToken", data.accessToken, {secure: true, sameSite: "strict"});
-                Cookies.set("refreshToken", data.refreshToken, {secure: true, sameSite: "strict"});
+                setTokensInCookies(data.accessToken, data.refreshToken);
                 return makeAuthenticatedRequest(url, method, data);
             } else {
-                window.location.replace("/authorize");
+                logout();
             }
         }
 
@@ -45,8 +44,8 @@ export async function makeAuthenticatedRequest<T>(url: string, method: "GET" | "
 }
 
 export function setTokensInCookies(accessToken: string, refreshToken: string) {
-    Cookies.set("accessToken", accessToken, {secure: true, sameSite: "strict"});
-    Cookies.set("refreshToken", refreshToken, {secure: true, sameSite: "strict"});
+    Cookies.set("accessToken", accessToken);
+    Cookies.set("refreshToken", refreshToken);
 }
 
 export function logout() {

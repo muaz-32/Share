@@ -9,7 +9,27 @@ const getPostsByDomainId = async (id: number) => {
     return prisma.domain.findUnique({ where: { id }, include: { posts: true } });
 }
 
+const getDomains = async () => {
+    return prisma.domain.findMany();
+}
+
+const getDomainById = async (id: number) => {
+    return prisma.domain.findUnique({ where: { id } });
+}
+
+const updateDomain = async (id: number, domain: Omit<Domain, "id">) => {
+    return prisma.domain.update({ where: { id }, data: domain });
+}
+
+const deleteDomain = async (id: number) => {
+    return prisma.domain.delete({ where: { id } });
+}
+
 export const domainRepository = {
     createDomain,
     getPostsByDomainId,
+    getDomains,
+    getDomainById,
+    updateDomain,
+    deleteDomain,
 }

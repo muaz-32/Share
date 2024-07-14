@@ -8,7 +8,27 @@ const getPostsByDomainId = async (id: number) => {
     return domainRepository.getPostsByDomainId(id);
 }
 
+const getDomains = async () => {
+    return domainRepository.getDomains();
+}
+
+const getDomainById = async (id: number) => {
+    return domainRepository.getDomainById(id);
+}
+
+const updateDomain = async (id: number, name: string) => {
+    return domainRepository.updateDomain(id, { name });
+}
+
+const deleteDomain = async (id: number) => {
+    return domainRepository.deleteDomain(id);
+}
+
 export const domainService = {
     createDomain,
     getPostsByDomainId,
+    getDomains,
+    getDomainById,
+    updateDomain,
+    deleteDomain,
 };

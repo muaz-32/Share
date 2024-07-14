@@ -1,1 +1,5 @@
-### Test post creation
+### Test getting all posts
+GET http://localhost:3000/api/post/
+
+### Test getting a post by id
+GET http://localhost:3000/api/post/1

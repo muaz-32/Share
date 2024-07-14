@@ -7,13 +7,18 @@ const createPost = async (post: Omit<Post, "id">): Promise<Post> => {
   return prisma.post.create({ data: post });
 }
 
-const getPostById = async (id: number): Promise<DetailedPost | null> => {
-    prisma.post.findUnique({ where: { id }, include: { votes: true, comments: true, author: true, domain: true } }).then((post) => {
-        if (post) {
-            return post;
-        }
-    });
-    return null;
+const getPostById = async (id: number)  => {
+    const post = await prisma.post.findUnique({ where: { id }, include: { votes: true, comments: true, author: true, domain: true } });
+    if (!post) return null;
+    return {
+        id: post.id,
+        title: post.title,
+        content: post.content,
+        comments: post.comments,
+        author: post.author,
+        votes: post.votes,
+        domain: post.domain,
+    };
 }
 
 const getAllPosts = async (): Promise<BriefPost[]> => {
@@ -34,16 +39,9 @@ const updatePost = async (id: number, post: Omit<Post, "id">): Promise<Post | nu
     });
 }
 
-const deletePost = async (id: number): Promise<Post | null> => {
-    return prisma.post.delete({
-        where: { id },
-    });
-}
-
 export const postRepository = {
     createPost,
     getPostById,
     getAllPosts,
     updatePost,
-    deletePost,
 };

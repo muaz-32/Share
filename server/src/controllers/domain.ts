@@ -21,7 +21,51 @@ const getPostsByDomainId = async (req: Request, res: Response) => {
     }
 }
 
+const getDomains = async (req: Request, res: Response) => {
+    const domains = await domainService.getDomains();
+    if (domains) {
+        res.status(200).json(domains);
+    } else {
+        res.status(404).json({ message: "No domains found" });
+    }
+}
+
+const getDomainById = async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const domain = await domainService.getDomainById(parseInt(id));
+    if (domain) {
+        res.status(200).json(domain);
+    } else {
+        res.status(404).json({ message: "Domain not found" });
+    }
+}
+
+const updateDomain = async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const { name } = req.body;
+    const domain = await domainService.updateDomain(parseInt(id), name);
+    if (domain) {
+        res.status(200).json(domain);
+    } else {
+        res.status(400).json({ message: "Domain update failed" });
+    }
+}
+
+const deleteDomain = async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const domain = await domainService.deleteDomain(parseInt(id));
+    if (domain) {
+        res.status(200).json(domain);
+    } else {
+        res.status(400).json({ message: "Domain deletion failed" });
+    }
+}
+
 export const domainController = {
     createDomain,
     getPostsByDomainId,
+    getDomains,
+    getDomainById,
+    updateDomain,
+    deleteDomain,
 };

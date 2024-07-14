@@ -1,32 +1,20 @@
 import * as React from "react";
-import {logout, makeAuthenticatedRequest} from "../lib/auth.ts";
-import {Button} from "./ui/button.tsx";
+import Header from "./Header.tsx";
+import AllPosts from "./AllPosts.tsx";
 
-type Response = {
-    message: string;
-};
+import {handleAuthenticatedRoute} from "../lib/utils.ts";
 
 function Dashboard(): React.ReactElement {
     const [message, setMessage] = React.useState<string>("");
 
     React.useEffect(() => {
-        makeAuthenticatedRequest<Response>("http://localhost:3000/api/user/dashboard", "GET")
-            .then((data) => {
-                setMessage(data.message);
-            })
-            .catch((error) => {
-                setMessage(error.message);
-            });
+        handleAuthenticatedRoute(setMessage).then(() => {});
     }, []);
-    
-    const handleLogout = () => {
-        logout();
-    }
 
     return (
-        <div>
-            <p>{message}</p>
-            <Button variant={"outline"} onClick={handleLogout}>Logout</Button>
+        <div className="flex min-h-screen w-full flex-col">
+            <Header userName={message}/>
+            <AllPosts />
         </div>
     );
 }

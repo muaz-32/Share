@@ -1,16 +1,32 @@
 import {postRepository} from "../repositories/post";
-import {DetailedPost} from "../types";
+import {DetailedPost, Post} from "../types";
+import {voteRepository} from "../repositories/vote";
+import {commentRepository} from "../repositories/comment";
 
 const createPost = async (title: string, content: string, authorId: number, domainId: number) => {
     return postRepository.createPost({ title, content, authorId, domainId });
 }
 
 const getPostById = async (id: number): Promise<DetailedPost | null> => {
-    return await postRepository.getPostById(id);
+    return postRepository.getPostById(id);
 }
 
 const getAllPosts = async () => {
-    return postRepository.getAllPosts();
+    let info: Post[] = [];
+    const posts = await postRepository.getAllPosts();
+    for (const post of posts) {
+        const votes = await voteRepository.netVote(post.id);
+        const comments = await commentRepository.getCommentCount(post.id);
+        info.push({
+            id: post.id,
+            title: post.title,
+            author: post.author.email,
+            domain: post.domain.name,
+            comments: comments,
+            newVotes: votes,
+        });
+    }
+    return info;
 }
 
 const updatePost = async (id: number, title: string, content: string, domainId: number, userId: number) => {

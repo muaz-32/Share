@@ -28,7 +28,16 @@ const login = async (email: string, password: string) => {
     return { accessToken, refreshToken };
 }
 
+const getUserEmailById = async (id: number) => {
+    const user = await userRepository.getUserById(id);
+    if (!user) {
+        return null;
+    }
+    return user.email;
+}
+
 export const userService = {
     signup,
     login,
+    getUserEmailById,
 };

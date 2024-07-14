@@ -16,9 +16,14 @@ const unfollow = async (followerId: number, followedId: number) => {
     return followRepository.unfollow(followerId, followedId);
 }
 
+const checkIfFollowing = async (followerId: number, followedId: number) => {
+    return followRepository.checkIfFollowing(followerId, followedId);
+}
+
 export const followService = {
     follow,
     getFollowers,
     getFollowings,
     unfollow,
+    checkIfFollowing,
 };

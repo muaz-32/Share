@@ -3,7 +3,7 @@ import {commentService} from "../services/comment";
 
 const addComment = async (req: Request, res: Response) => {
     const { content, postId } = req.body;
-    const comment = await commentService.addComment(content, postId, req.userId);
+    const comment = await commentService.addComment(content, parseInt(postId), req.userId);
     if (comment) {
         res.status(200).json(comment);
     } else {
@@ -32,8 +32,19 @@ const deleteComment = async (req: Request, res: Response) => {
     }
 }
 
+const getCommentCount = async (req: Request, res: Response) => {
+    const { postId } = req.params;
+    const count = await commentService.getCommentCount(parseInt(postId));
+    if (count) {
+        res.status(200).json(count);
+    } else {
+        res.status(404).json({ message: "Post not found" });
+    }
+}
+
 export const commentController = {
     addComment,
     updateComment,
     deleteComment,
+    getCommentCount
 };

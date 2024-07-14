@@ -41,15 +41,44 @@ interface DetailedPost {
     id: number;
     title: string;
     content: string;
-    author: User;
-    votes: Vote[];
-    comments: Comment[];
-    domain: Domain;
+    author: {
+        id: number;
+        email: string;
+    }
+    votes: {
+        id: number;
+        value: boolean;
+        postId: number;
+        userId: number;
+    }[];
+    comments: {
+        id: number;
+        content: string;
+        postId: number;
+        authorId: number;
+    }[];
+    domain: {
+        id: number;
+        name: string;
+    };
 }
 
 interface BriefPost {
     id: number;
     title: string;
-    author: User;
-    domain: Domain;
+    author: {
+        email: string;
+    };
+    domain: {
+        name: string;
+    };
 }
+
+interface Post {
+    id: number;
+    title: string;
+    author: string;
+    domain: string;
+    comments: number;
+    newVotes: number;
+};

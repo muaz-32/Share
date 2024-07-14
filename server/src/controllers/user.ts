@@ -33,7 +33,12 @@ const refreshToken = async (req: Request, res: Response) => {
 }
 
 const dashboard = async (req: Request, res: Response) => {
-    res.status(200).json({ message: "Dashboard" });
+    const email = await userService.getUserEmailById(req.userId);
+    if (email) {
+        res.status(200).json({ message: email });
+    } else {
+        res.status(404).json({ message: "User not found" });
+    }
 }
 
 export const userController = {

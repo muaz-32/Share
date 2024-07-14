@@ -6,7 +6,7 @@ const follow = async (req: Request, res: Response) => {
     const followedId = req.params.id;
     try {
         await followService.follow(followerId, parseInt(followedId));
-        res.status(200).send("Followed successfully");
+        res.status(200).send({message: "Followed successfully"});
     } catch (error) {
         res.status(500).send(error);
     }
@@ -37,7 +37,18 @@ const unfollow = async (req: Request, res: Response) => {
     const followedId = req.params.id;
     try {
         await followService.unfollow(followerId, parseInt(followedId));
-        res.status(200).send("Unfollowed successfully");
+        res.status(200).send({message: "Unfollowed successfully"});
+    } catch (error) {
+        res.status(500).send(error);
+    }
+}
+
+const checkIfFollowing = async (req: Request, res: Response) => {
+    const followerId = req.userId;
+    const followedId = req.params.id;
+    try {
+        const isFollowing = await followService.checkIfFollowing(followerId, parseInt(followedId));
+        res.status(200).send({follow: isFollowing});
     } catch (error) {
         res.status(500).send(error);
     }
@@ -48,4 +59,5 @@ export const followController = {
     getFollowers,
     getFollowings,
     unfollow,
+    checkIfFollowing,
 };

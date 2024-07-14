@@ -33,9 +33,20 @@ const unfollow = async (followerId: number, followedId: number) => {
     });
 }
 
+const checkIfFollowing = async (followerId: number, followedId: number) => {
+    const follow = await prisma.follow.findFirst({
+        where: {
+            followerId: followerId,
+            followedId: followedId,
+        },
+    });
+    return !!follow;
+}
+
 export const followRepository = {
     follow,
     getFollowers,
     getFollowing,
     unfollow,
+    checkIfFollowing,
 };

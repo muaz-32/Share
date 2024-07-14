@@ -22,9 +22,18 @@ const deleteComment = async (id: number): Promise<Comment | null> => {
     });
 }
 
+const getCommentCount = async (postId: number): Promise<number> => {
+    return prisma.comment.count({
+        where: {
+            postId,
+        },
+    });
+}
+
 export const commentRepository = {
     addComment,
     getCommentById,
     updateComment,
     deleteComment,
+    getCommentCount,
 };

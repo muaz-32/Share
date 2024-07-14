@@ -9,7 +9,7 @@ const generateAccessToken = (userId: number) => {
 }
 
 const generateRefreshToken = (userId: number) => {
-    return jwt.sign({ userId }, REFRESH_TOKEN_SECRET, { expiresIn: '7d' });
+    return jwt.sign({ userId }, REFRESH_TOKEN_SECRET, { expiresIn: '60m' });
 }
 
 const verifyAccessToken = (token: string) => {

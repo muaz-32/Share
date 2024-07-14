@@ -1,7 +1,7 @@
 import {commentRepository} from "../repositories/comment";
 
 const addComment = async (content: string, postId: number, authorId: number) => {
-    return commentRepository.addComment({ content, postId, authorId });
+    return commentRepository.addComment({ content: content, postId: postId, authorId: authorId});
 }
 
 const updateComment = async (id: number, content: string, authorId: number) => {
@@ -26,8 +26,13 @@ const deleteComment = async (id: number, authorId: number) => {
     return commentRepository.deleteComment(id);
 }
 
+const getCommentCount = async (postId: number) => {
+    return commentRepository.getCommentCount(postId);
+}
+
 export const commentService = {
     addComment,
     updateComment,
     deleteComment,
+    getCommentCount
 };

@@ -4,6 +4,7 @@ import {Card, CardContent, CardHeader, CardTitle} from "./ui/card.tsx";
 import {Label} from "./ui/label.tsx";
 import {Input} from "./ui/input.tsx";
 import {Button} from "./ui/button.tsx";
+import {makeAuthenticatedRequest, setTokensInCookies} from "../lib/auth.ts";
 
 type Inputs = {
   email: string;
@@ -15,12 +16,22 @@ type Response = {
   refreshToken: string;
 };
 
+type TokenValidationResponse = {
+    message: string;
+};
+
 function Auth(): React.ReactElement {
   const [isLogin, setIsLogin] = useState<boolean>(true);
 
   React.useEffect(() => {
     if (Cookies.get("accessToken") && Cookies.get("refreshToken")) {
-      window.location.replace("/dashboard");
+        makeAuthenticatedRequest<TokenValidationResponse>("http://localhost:3000/api/user/dashboard", "GET")
+            .then(() => {
+                window.location.replace("/dashboard");
+            })
+            .catch((error) => {
+                console.error("Error fetching user data: ", error);
+            });
     }
   }, []);
   
@@ -36,8 +47,7 @@ function Auth(): React.ReactElement {
       }
     );
     const json: Response = await response.json();
-    Cookies.set("accessToken", json.accessToken);
-    Cookies.set("refreshToken", json.refreshToken);
+    setTokensInCookies(json.accessToken, json.refreshToken);
     window.location.replace("/dashboard");
   }
   
