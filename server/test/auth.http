@@ -1,0 +1,22 @@
+### Test signup
+POST http://localhost:3000/api/user/signup
+Content-Type: application/json
+
+{
+    "email": "m@g.com",
+    "password": "123456"
+}
+
+### Test login
+POST http://localhost:3000/api/user/login
+Content-Type: application/json
+
+{
+    "email": "a@g.com", 
+    "password": "123"
+}
+
+### Test dashboard
+GET http://localhost:3000/api/user/dashboard
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsImlhdCI6MTcyMDM0NDk2NywiZXhwIjoxNzIwMzQ1ODY3fQ.POEK-LlHZzAuU4QvuKoF4FMhjYuLXgIL7aswLB85h7M
+

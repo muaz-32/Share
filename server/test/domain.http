@@ -1,0 +1,10 @@
+### Test domain creation
+POST http://localhost:3000/api/domain/create
+Content-Type: application/json
+
+{
+    "name": "tech"
+}
+
+### Test gettting posts by domain
+GET http://localhost:3000/api/domain/{{}}
