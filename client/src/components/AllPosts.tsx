@@ -3,25 +3,17 @@ import {Card, CardContent, CardHeader, CardTitle} from "./ui/card.tsx";
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "./ui/table.tsx";
 import {Badge} from "./ui/badge.tsx";
 import {useNavigate} from "react-router-dom";
-
-type Response = {
-    id: number;
-    title: string;
-    author: string;
-    domain: string;
-    comments: number;
-    newVotes: number;
-}[];
+import {AllPostsResponse, AllPostsResponseType} from "../schemas/AllPosts.ts";
 
 function AllPosts(): React.ReactElement {
-    const [posts, setPosts] = React.useState<Response>();
+    const [posts, setPosts] = React.useState<AllPostsResponseType>();
     const navigate = useNavigate();
     
     useEffect(() => {
         fetch("http://localhost:3000/api/post/")
             .then((response) => response.json())
-            .then((data: Response) => {
-                setPosts(data)
+            .then((data: AllPostsResponseType) => {
+                setPosts(AllPostsResponse.parse(data));
             })
             .catch((error) => {
                 console.error("Error fetching posts: ", error);

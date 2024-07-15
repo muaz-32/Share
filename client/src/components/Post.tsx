@@ -7,36 +7,11 @@ import {getUserIdFromToken, handleAuthenticatedRoute} from "../lib/utils.ts";
 import Header from "./Header.tsx";
 import {useParams} from "react-router-dom";
 import Cookies from "js-cookie";
-
-type Response = {
-    id: number;
-    title: string;
-    content: string;
-    author: {
-        id: number;
-        email: string;
-    };
-    votes: {
-        id: number;
-        value: boolean;
-        postId: number;
-        userId: number;
-    }[];
-    comments: {
-        id: number;
-        content: string;
-        authorId: number;
-        postId: number;
-    }[];
-    domain: {
-        id: number;
-        name: string;
-    };
-};
+import {PostResponse, PostResponseType} from "../schemas/Post.ts";
 
 function Post(): React.ReactElement {
     const { id } = useParams<{ id: string }>();
-    const [post, setPost] = React.useState<Response>();
+    const [post, setPost] = React.useState<PostResponseType>();
     const [commented, setCommented] = React.useState<number>(0);
     const [upvotes, setUpvotes] = React.useState<number>(0);
     const [downvotes, setDownvotes] = React.useState<number>(0);
@@ -50,7 +25,8 @@ function Post(): React.ReactElement {
         if (id) {
             fetch(`http://localhost:3000/api/post/${id}`)
                 .then((response) => response.json())
-                .then((data: Response) => {
+                .then((data: PostResponseType) => {
+                    data = PostResponse.parse(data);
                     setUpvotes(data.votes.filter((vote) => vote.value).length);
                     setDownvotes(data.votes.filter((vote) => !vote.value).length);
                     const userVoteFromDB = data.votes.find((vote) => vote.userId === getUserIdFromToken())?.value;
@@ -75,7 +51,7 @@ function Post(): React.ReactElement {
             .catch((error) => {
                 console.error("Error checking if following: ", error);
             });
-    }, [commented]);
+    }, [commented, id]);
 
     const handleVote = (voteType: "upvote" | "downvote") => {
         if (userVote === voteType) {
