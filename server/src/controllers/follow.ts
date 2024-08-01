@@ -1,18 +1,19 @@
 import { Request, Response } from "express";
 import {followService} from "../services/follow";
+import {FollowParams} from "../schemas/follow";
 
-const follow = async (req: Request, res: Response) => {
+const follow = async (req: Request<FollowParams, unknown, unknown, unknown>, res: Response) => {
     const followerId = req.userId;
     const followedId = req.params.id;
     try {
-        await followService.follow(followerId, parseInt(followedId));
+        await followService.follow(followerId, followedId);
         res.status(200).send({message: "Followed successfully"});
     } catch (error) {
         res.status(500).send(error);
     }
 }
 
-const getFollowers = async (req: Request, res: Response) => {
+const getFollowers = async (req: Request<unknown, unknown, unknown, unknown>, res: Response) => {
     const userId = req.userId;
     try {
         const followers = await followService.getFollowers(userId);
@@ -22,7 +23,7 @@ const getFollowers = async (req: Request, res: Response) => {
     }
 }
 
-const getFollowings = async (req: Request, res: Response) => {
+const getFollowings = async (req: Request<unknown, unknown, unknown, unknown>, res: Response) => {
     const userId = req.userId;
     try {
         const followings = await followService.getFollowings(userId);
@@ -32,22 +33,22 @@ const getFollowings = async (req: Request, res: Response) => {
     }
 }
 
-const unfollow = async (req: Request, res: Response) => {
+const unfollow = async (req: Request<FollowParams, unknown, unknown, unknown>, res: Response) => {
     const followerId = req.userId;
     const followedId = req.params.id;
     try {
-        await followService.unfollow(followerId, parseInt(followedId));
+        await followService.unfollow(followerId, followedId);
         res.status(200).send({message: "Unfollowed successfully"});
     } catch (error) {
         res.status(500).send(error);
     }
 }
 
-const checkIfFollowing = async (req: Request, res: Response) => {
+const checkIfFollowing = async (req: Request<FollowParams, unknown, unknown, unknown>, res: Response) => {
     const followerId = req.userId;
     const followedId = req.params.id;
     try {
-        const isFollowing = await followService.checkIfFollowing(followerId, parseInt(followedId));
+        const isFollowing = await followService.checkIfFollowing(followerId, followedId);
         res.status(200).send({follow: isFollowing});
     } catch (error) {
         res.status(500).send(error);

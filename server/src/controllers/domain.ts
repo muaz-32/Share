@@ -1,7 +1,8 @@
 import { Request, Response } from 'express';
 import {domainService} from "../services/domain";
+import {CreateDomain, DomainParams, UpdateDomain} from "../schemas/domain";
 
-const createDomain = async (req: Request, res: Response) => {
+const createDomain = async (req: Request<unknown, unknown, CreateDomain, unknown>, res: Response) => {
     const { name } = req.body;
     const domain = await domainService.createDomain(name);
     if (domain) {
@@ -11,9 +12,9 @@ const createDomain = async (req: Request, res: Response) => {
     }
 }
 
-const getPostsByDomainId = async (req: Request, res: Response) => {
+const getPostsByDomainId = async (req: Request<DomainParams, unknown, unknown, unknown>, res: Response) => {
     const { id } = req.params;
-    const posts = await domainService.getPostsByDomainId(parseInt(id));
+    const posts = await domainService.getPostsByDomainId(id);
     if (posts) {
         res.status(200).json(posts);
     } else {
@@ -21,7 +22,7 @@ const getPostsByDomainId = async (req: Request, res: Response) => {
     }
 }
 
-const getDomains = async (req: Request, res: Response) => {
+const getDomains = async (req: Request<unknown, unknown, unknown, unknown>, res: Response) => {
     const domains = await domainService.getDomains();
     if (domains) {
         res.status(200).json(domains);
@@ -30,9 +31,9 @@ const getDomains = async (req: Request, res: Response) => {
     }
 }
 
-const getDomainById = async (req: Request, res: Response) => {
+const getDomainById = async (req: Request<DomainParams, unknown, unknown, unknown>, res: Response) => {
     const { id } = req.params;
-    const domain = await domainService.getDomainById(parseInt(id));
+    const domain = await domainService.getDomainById(id);
     if (domain) {
         res.status(200).json(domain);
     } else {
@@ -40,10 +41,10 @@ const getDomainById = async (req: Request, res: Response) => {
     }
 }
 
-const updateDomain = async (req: Request, res: Response) => {
+const updateDomain = async (req: Request<DomainParams, unknown, UpdateDomain, unknown>, res: Response) => {
     const { id } = req.params;
     const { name } = req.body;
-    const domain = await domainService.updateDomain(parseInt(id), name);
+    const domain = await domainService.updateDomain(id, name);
     if (domain) {
         res.status(200).json(domain);
     } else {
@@ -51,9 +52,9 @@ const updateDomain = async (req: Request, res: Response) => {
     }
 }
 
-const deleteDomain = async (req: Request, res: Response) => {
+const deleteDomain = async (req: Request<DomainParams, unknown, unknown, unknown>, res: Response) => {
     const { id } = req.params;
-    const domain = await domainService.deleteDomain(parseInt(id));
+    const domain = await domainService.deleteDomain(id);
     if (domain) {
         res.status(200).json(domain);
     } else {

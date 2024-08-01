@@ -3,8 +3,8 @@ POST http://localhost:3000/api/user/signup
 Content-Type: application/json
 
 {
-    "email": "m@g.com",
-    "password": "123456"
+    "email": "sdfjkghsjkadfjshkj@g.com",
+    "password": "123"
 }
 
 ### Test login
@@ -18,5 +18,5 @@ Content-Type: application/json
 
 ### Test dashboard
 GET http://localhost:3000/api/user/dashboard
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsImlhdCI6MTcyMDM0NDk2NywiZXhwIjoxNzIwMzQ1ODY3fQ.POEK-LlHZzAuU4QvuKoF4FMhjYuLXgIL7aswLB85h7M
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjgsImlhdCI6MTcyMjUxNDcyOSwiZXhwIjoxNzIyNTE1NjI5fQ.hFAItSVCde96ZsDDrzO3R84qMv76Um5nP_m8kXvaXNE
 
