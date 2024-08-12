@@ -3,11 +3,11 @@ POST http://localhost:3000/api/user/signup
 Content-Type: application/json
 
 {
-    "email": "sdfjkghsjkadfjshkj@g.com",
+    "email": "sdfdfjshkj@g.com",
     "password": "123"
 }
 
-### Test login
+### Test login 1
 POST http://localhost:3000/api/user/login
 Content-Type: application/json
 
@@ -16,7 +16,24 @@ Content-Type: application/json
     "password": "123"
 }
 
+### Test login 2
+POST http://localhost:3000/api/user/login
+Content-Type: application/json
+
+{
+    "email": "sdfdfjshkj@g.com",
+    "password": "123"
+}
+
 ### Test dashboard
 GET http://localhost:3000/api/user/dashboard
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjgsImlhdCI6MTcyMjUxNDcyOSwiZXhwIjoxNzIyNTE1NjI5fQ.hFAItSVCde96ZsDDrzO3R84qMv76Um5nP_m8kXvaXNE
+Authorization: Bearer {{accessToken}}
+
+### Test refresh token
+POST http://localhost:3000/api/user/refresh
+Content-Type: application/json
+
+{
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTcyMzI5Mjk1NCwiZXhwIjoxNzIzMjk2NTU0fQ.lWTrZfaSauUuKlSIG7CPzBLq06QBM5QWY6KRHFlIVAs"
+}
 

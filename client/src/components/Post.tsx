@@ -26,7 +26,12 @@ function Post(): React.ReactElement {
             fetch(`http://localhost:3000/api/post/${id}`)
                 .then((response) => response.json())
                 .then((data: PostResponseType) => {
-                    data = PostResponse.parse(data);
+                    try {
+                        data = PostResponse.parse(data);
+                    } catch (error) {
+                        alert("Error parsing post data " + error);
+                        return;
+                    }
                     setUpvotes(data.votes.filter((vote) => vote.value).length);
                     setDownvotes(data.votes.filter((vote) => !vote.value).length);
                     const userVoteFromDB = data.votes.find((vote) => vote.userId === getUserIdFromToken())?.value;
@@ -55,7 +60,7 @@ function Post(): React.ReactElement {
 
     const handleVote = (voteType: "upvote" | "downvote") => {
         if (userVote === voteType) {
-            makeAuthenticatedRequest(`http://localhost:3000/api/vote/`, "DELETE", {postId: id})
+            makeAuthenticatedRequest(`http://localhost:3000/api/vote/`, "DELETE", {postId: parseInt(id as string)})
                 .then(() => {
                     if (voteType === "upvote") {
                         setUpvotes(upvotes - 1);
@@ -70,7 +75,7 @@ function Post(): React.ReactElement {
         }
         
         if (userVote !== null) {
-            makeAuthenticatedRequest(`http://localhost:3000/api/vote/`, "PUT", {postId: id, value: voteType === "upvote"})
+            makeAuthenticatedRequest(`http://localhost:3000/api/vote/`, "PUT", {postId: parseInt(id as string), value: voteType === "upvote"})
                 .then(() => {
                     if (voteType === "upvote") {
                         setUpvotes(upvotes + 1);
@@ -85,7 +90,7 @@ function Post(): React.ReactElement {
                     console.error("Error submitting vote: ", error);
                 });
         } else {
-            makeAuthenticatedRequest(`http://localhost:3000/api/vote/give`, "POST", {postId: id, value: voteType === "upvote"})
+            makeAuthenticatedRequest(`http://localhost:3000/api/vote/give`, "POST", {postId: parseInt(id as string), value: voteType === "upvote"})
                 .then(() => {
                     if (voteType === "upvote") {
                         setUpvotes(upvotes + 1);
@@ -102,7 +107,7 @@ function Post(): React.ReactElement {
     
     const handleCommentSubmit = () => {
         const comment = (document.getElementById("comment") as HTMLInputElement).value;
-        makeAuthenticatedRequest(`http://localhost:3000/api/comment/add`, "POST", {content: comment, postId: id})
+        makeAuthenticatedRequest(`http://localhost:3000/api/comment/add`, "POST", {content: comment, postId: parseInt(id as string)})
             .then(() => {
                 setCommented(commented + 1);
             })
@@ -111,9 +116,9 @@ function Post(): React.ReactElement {
             });
     }
     
-    const handleFollow = (path: string) => {
+    const handleFollow = (path: "follow" | "unfollow", method: "POST" | "DELETE") => {
         const authorId = document.getElementById("authorId")?.textContent;
-        makeAuthenticatedRequest(`http://localhost:3000/api/follow/${path}/${authorId}`, "POST", )
+        makeAuthenticatedRequest(`http://localhost:3000/api/follow/${path}/${authorId}`, method, {})
             .then(() => {
                 setFollowed(path === "follow");
             })
@@ -133,10 +138,10 @@ function Post(): React.ReactElement {
                         </CardHeader>
                         <CardContent>
                             <p>{post?.author.email}
-                                {followed === false && <Button onClick={() => handleFollow("follow")} className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+                                {followed === false && <Button onClick={() => handleFollow("follow", "POST")} className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
                                     Follow
                                 </Button>}
-                                {followed === true && <Button onClick={() => handleFollow("unfollow")} className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
+                                {followed === true && <Button onClick={() => handleFollow("unfollow", "DELETE")} className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
                                     Unfollow
                                 </Button>}
                             </p>

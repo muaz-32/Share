@@ -1,9 +1,34 @@
-### give a vote
+### Test giving a vote
 POST http://localhost:3000/api/vote/give
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTcyMDUwOTAwOCwiZXhwIjoxNzIwNTA5OTA4fQ.z0AedrqhSX2wXLu9_m87YjFkQexSXJXmOmbWSKIPlpA
+Authorization: Bearer {{accessToken2}}
+Content-Type: application/json
+
+{
+    "postId": 1,
+    "value": false
+}
+
+### Test updating a vote
+PUT http://localhost:3000/api/vote/
+Authorization: Bearer {{accessToken2}}
 Content-Type: application/json
 
 {
     "postId": 1,
     "value": true
 }
+
+### Test deleting a vote
+DELETE http://localhost:3000/api/vote
+Authorization: Bearer {{accessToken2}}
+Content-Type: application/json
+
+{
+    "postId": 1
+}
+
+### Test getting vote count
+GET http://localhost:3000/api/vote/count/1
+
+### Test getting net vote
+GET http://localhost:3000/api/vote/net/1

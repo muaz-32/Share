@@ -7,4 +7,19 @@ Content-Type: application/json
 }
 
 ### Test gettting posts by domain
-GET http://localhost:3000/api/domain/{{}}
+GET http://localhost:3000/api/domain/1/posts
+
+### Test getting all domains
+GET http://localhost:3000/api/domain/
+
+### Test getting a domain by id
+GET http://localhost:3000/api/domain/1
+
+### Test updating a domain
+PUT http://localhost:3000/api/domain/1
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+    "name": "technology"
+}

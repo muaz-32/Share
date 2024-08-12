@@ -1,27 +1,27 @@
 import {z} from "zod";
 
 export const PostResponse = z.object({
-    id: z.string(),
+    id: z.number(),
     title: z.string(),
     content: z.string(),
     author: z.object({
-        id: z.string(),
+        id: z.number(),
         email: z.string(),
     }),
     votes: z.array(z.object({
-        id: z.string(),
+        id: z.number(),
         value: z.boolean(),
-        postId: z.string(),
+        postId: z.number(),
         userId: z.number(),
     })),
     comments: z.array(z.object({
-        id: z.string(),
+        id: z.number(),
         content: z.string(),
-        authorId: z.string(),
-        postId: z.string(),
+        authorId: z.number(),
+        postId: z.number(),
     })),
     domain: z.object({
-        id: z.string(),
+        id: z.number(),
         name: z.string(),
     }),
 });

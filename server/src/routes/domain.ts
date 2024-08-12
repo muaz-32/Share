@@ -11,6 +11,5 @@ domainRouter.get("/:id/posts", validateRequest(domainParamsSchema, null), domain
 domainRouter.get("/", domainController.getDomains);
 domainRouter.get("/:id", validateRequest(domainParamsSchema, null), domainController.getDomainById);
 domainRouter.put("/:id", validateRequest(domainParamsSchema, updateDomainSchema), authMiddleware, domainController.updateDomain);
-domainRouter.delete("/:id", validateRequest(domainParamsSchema, null), authMiddleware, domainController.deleteDomain);
 
 export default domainRouter;

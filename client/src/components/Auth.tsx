@@ -27,7 +27,11 @@ function Auth(): React.ReactElement {
   }, []);
   
   const handleAuth = async (data: AuthInputsType) => {
-    data = AuthInputs.parse(data);
+    const authData = AuthInputs.safeParse(data);
+    if (!authData.success) {
+        alert("Invalid data");
+        return;
+    }
     const response = await fetch(
       `http://localhost:3000/api/user/${isLogin ? "login" : "signup"}`,
       {
@@ -38,9 +42,15 @@ function Auth(): React.ReactElement {
         body: JSON.stringify(data),
       }
     );
-    const json = AuthResponse.parse(await response.json());
-    setTokensInCookies(json.accessToken, json.refreshToken);
+    const json = await response.json();
+    const authResponse = AuthResponse.safeParse(json);
+    if (!authResponse.success) {
+        alert("Error authenticating: " + authResponse.error.errors);
+        return;
+    }
+    setTokensInCookies(authResponse.data.accessToken, authResponse.data.refreshToken);
     window.location.replace("/dashboard");
+    
   }
   
   const toggleForm = () => {

@@ -5,13 +5,43 @@ import {Card, CardContent, CardHeader, CardTitle} from "./ui/card.tsx";
 import { Button } from "./ui/button.tsx";
 import {Label} from "./ui/label.tsx";
 import {Input} from "./ui/input.tsx";
+import {makeAuthenticatedRequest} from "../lib/auth.ts";
+import {DomainResponse} from "../schemas/Create.ts";
+import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "./ui/select.tsx";
 
 function Create(): React.ReactElement {
     const [message, setMessage] = React.useState<string>("");
+    const [domains, setDomains] = React.useState<{ id: number, name: string }[]>([]);
+    const [selectedDomain, setSelectedDomain] = React.useState<number | null>(null);
     
     React.useEffect(() => {
         handleAuthenticatedRoute(setMessage).then(() => {});
+        fetch(`http://localhost:3000/api/domain`, { method: "GET", })
+            .then((response) => response.json())
+            .then((data) => {
+                const domainData = DomainResponse.safeParse(data);
+                if (domainData.success) {
+                    setDomains(domainData.data);
+                } else {
+                    alert("Error fetching domains: " + domainData.error.errors);
+                }
+            })
     }, []);
+    
+    const handleCreatePost = () => {
+        const data = {
+            title: (document.getElementById("title") as HTMLInputElement).value,
+            content: (document.getElementById("content") as HTMLInputElement).value,
+            domainId: selectedDomain,
+        };
+        makeAuthenticatedRequest("http://localhost:3000/api/post/create", "POST", data)
+            .then(() => {
+                alert("Post created successfully");
+            })
+            .catch((error) => {
+                alert("Error creating post: " + error);
+            });
+    }
     
     return (
         <div className="flex min-h-screen w-full flex-col">
@@ -37,7 +67,19 @@ function Create(): React.ReactElement {
                                         </div>
                                         <Input id="content" type="text" required />
                                     </div>
-                                    <Button>
+                                    <div className="grid gap-2">
+                                        <Select onValueChange={(value) => setSelectedDomain(parseInt(value))}>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Domain" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {domains.map((domain) => (
+                                                    <SelectItem key={domain.id} value={domain.id.toString()}>{domain.name}</SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                    <Button onClick={handleCreatePost}>
                                         Create
                                     </Button>
                                 </div>

@@ -13,7 +13,12 @@ function AllPosts(): React.ReactElement {
         fetch("http://localhost:3000/api/post/")
             .then((response) => response.json())
             .then((data: AllPostsResponseType) => {
-                setPosts(AllPostsResponse.parse(data));
+                const postData = AllPostsResponse.safeParse(data);
+                if (postData.success) {
+                    setPosts(postData.data);
+                } else {
+                    alert("Error fetching posts: " + postData.error.errors);
+                }
             })
             .catch((error) => {
                 console.error("Error fetching posts: ", error);

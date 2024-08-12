@@ -9,7 +9,7 @@ export const updateDomainSchema = z.object({
 });
 
 export const domainParamsSchema = z.object({
-    id: z.number(),
+    id: z.string(),
 });
 
 export type CreateDomain = z.infer<typeof createDomainSchema>;

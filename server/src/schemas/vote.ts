@@ -15,7 +15,7 @@ export const deleteVoteSchema = z.object({
 });
 
 export const voteParamsSchema = z.object({
-    postId: z.number(),
+    postId: z.string(),
 });
 
 export type GiveVote = z.infer<typeof giveVoteSchema>;

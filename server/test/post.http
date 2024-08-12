@@ -1,5 +1,27 @@
+### Test creating a post
+POST http://localhost:3000/api/post/create
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+    "title": "Post 1",
+    "content": "This is the first post",
+    "domainId": 1
+}
+
 ### Test getting all posts
 GET http://localhost:3000/api/post/
 
 ### Test getting a post by id
 GET http://localhost:3000/api/post/1
+
+### Test updating a post
+PUT http://localhost:3000/api/post/2
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+    "title": "Updated Post",
+    "content": "This is the updated post",
+    "domainId": 1
+}

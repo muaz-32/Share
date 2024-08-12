@@ -15,7 +15,7 @@ const addComment = async (req: Request<unknown, unknown, AddComment, unknown>, r
 const updateComment = async (req: Request<CommentParams, unknown, UpdateComment, unknown>, res: Response) => {
     const { id } = req.params;
     const { content } = req.body;
-    const comment = await commentService.updateComment(id, content, req.userId);
+    const comment = await commentService.updateComment(parseInt(id), content, req.userId);
     if (comment) {
         res.status(200).json(comment);
     } else {
@@ -25,7 +25,7 @@ const updateComment = async (req: Request<CommentParams, unknown, UpdateComment,
 
 const deleteComment = async (req: Request<CommentParams, unknown, unknown, unknown>, res: Response) => {
     const { id } = req.params;
-    const comment = await commentService.deleteComment(id, req.userId);
+    const comment = await commentService.deleteComment(parseInt(id), req.userId);
     if (comment) {
         res.status(200).json(comment);
     } else {
@@ -35,7 +35,7 @@ const deleteComment = async (req: Request<CommentParams, unknown, unknown, unkno
 
 const getCommentCount = async (req: Request<CommentCountParams, unknown, unknown, unknown>, res: Response) => {
     const { postId } = req.params;
-    const count = await commentService.getCommentCount(postId);
+    const count = await commentService.getCommentCount(parseInt(postId));
     if (count) {
         res.status(200).json(count);
     } else {

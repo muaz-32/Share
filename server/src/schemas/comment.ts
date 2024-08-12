@@ -10,11 +10,11 @@ export const updateCommentSchema = z.object({
 });
 
 export const commentParamsSchema = z.object({
-    id: z.number()
+    id: z.string()
 });
 
 export const commentCountParamsSchema = z.object({
-    postId: z.number()
+    postId: z.string()
 })
 
 export type AddComment = z.infer<typeof addCommentSchema>;

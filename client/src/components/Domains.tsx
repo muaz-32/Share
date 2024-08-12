@@ -32,6 +32,8 @@ function Domains(): React.ReactElement {
         const json = await response.json();
         if (json.error) {
             alert(json.error);
+        } else {
+            alert("Domain created successfully");
         }
         
     }

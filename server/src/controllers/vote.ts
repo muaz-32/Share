@@ -34,7 +34,7 @@ const deleteVote = async (req: Request<unknown, unknown, DeleteVote, unknown>, r
 
 const getVoteCount = async (req: Request<VoteParams, unknown, unknown, unknown>, res: Response) => {
     const { postId } = req.params;
-    const count = await voteService.getVoteCount(postId);
+    const count = await voteService.getVoteCount(parseInt(postId));
     if (count) {
         res.status(200).json(count);
     } else {
@@ -44,7 +44,7 @@ const getVoteCount = async (req: Request<VoteParams, unknown, unknown, unknown>,
 
 const netVote = async (req: Request<VoteParams, unknown, unknown, unknown>, res: Response) => {
     const {postId} = req.params;
-    const net = await voteService.netVote(postId);
+    const net = await voteService.netVote(parseInt(postId));
     if (net) {
         res.status(200).json(net);
     } else {

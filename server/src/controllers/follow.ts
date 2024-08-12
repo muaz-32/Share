@@ -4,7 +4,7 @@ import {FollowParams} from "../schemas/follow";
 
 const follow = async (req: Request<FollowParams, unknown, unknown, unknown>, res: Response) => {
     const followerId = req.userId;
-    const followedId = req.params.id;
+    const followedId = parseInt(req.params.id);
     try {
         await followService.follow(followerId, followedId);
         res.status(200).send({message: "Followed successfully"});
@@ -35,7 +35,7 @@ const getFollowings = async (req: Request<unknown, unknown, unknown, unknown>, r
 
 const unfollow = async (req: Request<FollowParams, unknown, unknown, unknown>, res: Response) => {
     const followerId = req.userId;
-    const followedId = req.params.id;
+    const followedId = parseInt(req.params.id);
     try {
         await followService.unfollow(followerId, followedId);
         res.status(200).send({message: "Unfollowed successfully"});
@@ -46,7 +46,7 @@ const unfollow = async (req: Request<FollowParams, unknown, unknown, unknown>, r
 
 const checkIfFollowing = async (req: Request<FollowParams, unknown, unknown, unknown>, res: Response) => {
     const followerId = req.userId;
-    const followedId = req.params.id;
+    const followedId = parseInt(req.params.id);
     try {
         const isFollowing = await followService.checkIfFollowing(followerId, followedId);
         res.status(200).send({follow: isFollowing});

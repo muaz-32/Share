@@ -14,7 +14,7 @@ const createPost = async (req: Request<unknown, unknown, CreatePost, unknown>, r
 
 const getPostById = async (req: Request<PostParams, unknown, unknown, unknown>, res: Response) => {
     const { id } = req.params;
-    const post = await postService.getPostById(id);
+    const post = await postService.getPostById(parseInt(id));
     if (post) {
         res.status(200).json(post);
     } else {
@@ -34,17 +34,7 @@ const getAllPosts = async (req: Request<unknown, unknown, unknown, unknown>, res
 const updatePost = async (req: Request<PostParams, unknown, UpdatePost, unknown>, res: Response) => {
     const { id } = req.params;
     const { title, content, domainId } = req.body;
-    const post = await postService.updatePost(id, title, content, domainId, req.userId);
-    if (post) {
-        res.status(200).json(post);
-    } else {
-        res.status(404).json({ message: "Post not found" });
-    }
-}
-
-const deletePost = async (req: Request<PostParams, unknown, unknown, unknown>, res: Response) => {
-    const { id } = req.params;
-    const post = await postService.deletePost(id, req.userId);
+    const post = await postService.updatePost(parseInt(id), title, content, domainId, req.userId);
     if (post) {
         res.status(200).json(post);
     } else {
@@ -57,5 +47,4 @@ export const postController = {
     getPostById,
     getAllPosts,
     updatePost,
-    deletePost,
 };

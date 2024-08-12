@@ -13,7 +13,7 @@ export const updatePostSchema = z.object({
 });
 
 export const postParamsSchema = z.object({
-    id: z.number(),
+    id: z.string(),
 });
 
 export type CreatePost = z.infer<typeof createPostSchema>;

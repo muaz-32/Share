@@ -40,21 +40,9 @@ const updatePost = async (id: number, title: string, content: string, domainId: 
     return postRepository.updatePost(id, { title: title,  content: content, domainId: domainId, authorId: userId });
 }
 
-const deletePost = async (id: number, userId: number) => {
-    const post = await postRepository.getPostById(id);
-    if (!post) {
-        return null;
-    }
-    if (post.author.id !== userId) {
-        return null;
-    }
-    return postRepository.deletePost(id);
-}
-
 export const postService = {
     createPost,
     getPostById,
     getAllPosts,
     updatePost,
-    deletePost,
 };

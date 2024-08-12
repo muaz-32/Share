@@ -21,15 +21,10 @@ const updateDomain = async (id: number, domain: Omit<Domain, "id">) => {
     return prisma.domain.update({ where: { id }, data: domain });
 }
 
-const deleteDomain = async (id: number) => {
-    return prisma.domain.delete({ where: { id } });
-}
-
 export const domainRepository = {
     createDomain,
     getPostsByDomainId,
     getDomains,
     getDomainById,
     updateDomain,
-    deleteDomain,
 }
