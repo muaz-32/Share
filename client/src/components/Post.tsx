@@ -1,4 +1,4 @@
-import React, {useEffect} from "react";
+import React, {useEffect, useRef} from "react";
 import {Card, CardContent, CardHeader, CardTitle} from "./ui/card.tsx";
 import {Input} from "./ui/input.tsx";
 import {Button} from "./ui/button.tsx";
@@ -6,43 +6,36 @@ import {makeAuthenticatedRequest} from "../lib/auth.ts";
 import {getUserIdFromToken, handleAuthenticatedRoute} from "../lib/utils.ts";
 import Header from "./Header.tsx";
 import {useParams} from "react-router-dom";
-import Cookies from "js-cookie";
 import {PostResponse, PostResponseType} from "../schemas/Post.ts";
+import {useGetPostQuery} from "../redux/post-api.ts";
+import Cookies from "js-cookie";
 
 function Post(): React.ReactElement {
     const { id } = useParams<{ id: string }>();
-    const [post, setPost] = React.useState<PostResponseType>();
     const [commented, setCommented] = React.useState<number>(0);
     const [upvotes, setUpvotes] = React.useState<number>(0);
     const [downvotes, setDownvotes] = React.useState<number>(0);
     const [userVote, setUserVote] = React.useState<"upvote" | "downvote" | null>(null);
     const [message, setMessage] = React.useState<string>("");
     const [followed, setFollowed] = React.useState<boolean | null>(null);
+    const { data: fetchedPost, refetch: refetchPost } = useGetPostQuery(id as string);
+    const postRef = useRef<PostResponseType | null>(null);
     
     useEffect(() => {
         handleAuthenticatedRoute(setMessage).then(() => {});
-        
-        if (id) {
-            fetch(`http://localhost:3000/api/post/${id}`)
-                .then((response) => response.json())
-                .then((data: PostResponseType) => {
-                    try {
-                        data = PostResponse.parse(data);
-                    } catch (error) {
-                        alert("Error parsing post data " + error);
-                        return;
-                    }
-                    setUpvotes(data.votes.filter((vote) => vote.value).length);
-                    setDownvotes(data.votes.filter((vote) => !vote.value).length);
-                    const userVoteFromDB = data.votes.find((vote) => vote.userId === getUserIdFromToken())?.value;
-                    setUserVote(userVoteFromDB ? "upvote" : userVoteFromDB === false ? "downvote" : null);
-                    setPost(data)
-                })
-                .catch((error) => {
-                    console.error("Error fetching post: ", error);
-                });
+        try {
+            refetchPost();
+            postRef.current = PostResponse.parse(fetchedPost);
+        } catch (error) {
+            alert("Error parsing post data " + error);
+            return;
         }
-        
+        const post = postRef.current;
+        setUpvotes(post.votes.filter((vote) => vote.value).length);
+        setDownvotes(post.votes.filter((vote) => !vote.value).length);
+        const userVoteFromDB = post.votes.find((vote) => vote.userId === getUserIdFromToken())?.value;
+        setUserVote(userVoteFromDB ? "upvote" : userVoteFromDB === false ? "downvote" : null);
+
         fetch(`http://localhost:3000/api/follow/is-following/${id}`,{
             method: "GET",
             headers: {
@@ -56,7 +49,8 @@ function Post(): React.ReactElement {
             .catch((error) => {
                 console.error("Error checking if following: ", error);
             });
-    }, [commented, id]);
+        
+    }, [commented, id, fetchedPost, refetchPost]);
 
     const handleVote = (voteType: "upvote" | "downvote") => {
         if (userVote === voteType) {
@@ -134,10 +128,10 @@ function Post(): React.ReactElement {
                 <div className="grid gap-4 md:gap-8 lg:grid-cols-2 xl:grid-cols-3">
                     <Card>
                         <CardHeader>
-                            <CardTitle>{post?.title}</CardTitle>
+                            <CardTitle>{postRef.current?.title}</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <p>{post?.author.email}
+                            <p>{postRef.current?.author.email}
                                 {followed === false && <Button onClick={() => handleFollow("follow", "POST")} className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
                                     Follow
                                 </Button>}
@@ -145,8 +139,8 @@ function Post(): React.ReactElement {
                                     Unfollow
                                 </Button>}
                             </p>
-                            <p id={"authorId"} className={"hidden"}>{post?.author.id}</p>
-                            <p>{post?.content}</p>
+                            <p id={"authorId"} className={"hidden"}>{postRef.current?.author.id}</p>
+                            <p>{postRef.current?.content}</p>
                             <div className="flex justify-between items-center mt-4">
                                 <Button onClick={() => handleVote('upvote')} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                                     Upvote {upvotes}
@@ -160,7 +154,7 @@ function Post(): React.ReactElement {
                                 Submit Comment
                             </Button>
                             <div className="mt-4">
-                                {post?.comments.map((comment) => (
+                                {postRef.current?.comments.map((comment) => (
                                     <div key={comment.id} className="border p-4 rounded">
                                         <p>{comment.content}</p>
                                     </div>

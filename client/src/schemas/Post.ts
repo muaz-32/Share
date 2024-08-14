@@ -26,4 +26,11 @@ export const PostResponse = z.object({
     }),
 });
 
+export const PostRequest = z.object({
+    title: z.string(),
+    content: z.string(),
+    domainId: z.number(),
+});
+
 export type PostResponseType = z.infer<typeof PostResponse>;
+export type PostRequestType = z.infer<typeof PostRequest>;

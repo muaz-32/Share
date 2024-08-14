@@ -5,14 +5,15 @@ import {Card, CardContent, CardHeader, CardTitle} from "./ui/card.tsx";
 import { Button } from "./ui/button.tsx";
 import {Label} from "./ui/label.tsx";
 import {Input} from "./ui/input.tsx";
-import {makeAuthenticatedRequest} from "../lib/auth.ts";
 import {DomainResponse} from "../schemas/Create.ts";
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "./ui/select.tsx";
+import {useCreatePostMutation} from "../redux/post-api.ts";
 
 function Create(): React.ReactElement {
     const [message, setMessage] = React.useState<string>("");
     const [domains, setDomains] = React.useState<{ id: number, name: string }[]>([]);
     const [selectedDomain, setSelectedDomain] = React.useState<number | null>(null);
+    const [createPost] = useCreatePostMutation()
     
     React.useEffect(() => {
         handleAuthenticatedRoute(setMessage).then(() => {});
@@ -29,12 +30,17 @@ function Create(): React.ReactElement {
     }, []);
     
     const handleCreatePost = () => {
+        if (!selectedDomain) {
+            alert("Please select a domain");
+            return;
+        }
         const data = {
             title: (document.getElementById("title") as HTMLInputElement).value,
             content: (document.getElementById("content") as HTMLInputElement).value,
             domainId: selectedDomain,
         };
-        makeAuthenticatedRequest("http://localhost:3000/api/post/create", "POST", data)
+        createPost(data)
+            .unwrap()
             .then(() => {
                 alert("Post created successfully");
             })
