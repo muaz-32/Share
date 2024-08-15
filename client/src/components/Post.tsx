@@ -2,13 +2,15 @@ import React, {useEffect, useRef} from "react";
 import {Card, CardContent, CardHeader, CardTitle} from "./ui/card.tsx";
 import {Input} from "./ui/input.tsx";
 import {Button} from "./ui/button.tsx";
-import {makeAuthenticatedRequest} from "../lib/auth.ts";
 import {getUserIdFromToken, handleAuthenticatedRoute} from "../lib/utils.ts";
 import Header from "./Header.tsx";
 import {useParams} from "react-router-dom";
 import {PostResponse, PostResponseType} from "../schemas/Post.ts";
 import {useGetPostQuery} from "../redux/post-api.ts";
 import Cookies from "js-cookie";
+import {useGiveVoteMutation, useUnvoteMutation, useUpdateVoteMutation} from "../redux/vote-api.ts";
+import {usePostCommentMutation} from "../redux/comment-api.ts";
+import {useFollowMutation, useUnfollowMutation} from "../redux/follow-api.ts";
 
 function Post(): React.ReactElement {
     const { id } = useParams<{ id: string }>();
@@ -20,6 +22,12 @@ function Post(): React.ReactElement {
     const [followed, setFollowed] = React.useState<boolean | null>(null);
     const { data: fetchedPost, refetch: refetchPost } = useGetPostQuery(id as string);
     const postRef = useRef<PostResponseType | null>(null);
+    const [giveVote] = useGiveVoteMutation();
+    const [unvote] = useUnvoteMutation();
+    const [updateVote] = useUpdateVoteMutation();
+    const [addComment] = usePostCommentMutation();
+    const [follow] = useFollowMutation();
+    const [unfollow] = useUnfollowMutation();
     
     useEffect(() => {
         handleAuthenticatedRoute(setMessage).then(() => {});
@@ -54,7 +62,8 @@ function Post(): React.ReactElement {
 
     const handleVote = (voteType: "upvote" | "downvote") => {
         if (userVote === voteType) {
-            makeAuthenticatedRequest(`http://localhost:3000/api/vote/`, "DELETE", {postId: parseInt(id as string)})
+            unvote({postId: parseInt(id as string)})
+                .unwrap()
                 .then(() => {
                     if (voteType === "upvote") {
                         setUpvotes(upvotes - 1);
@@ -63,28 +72,31 @@ function Post(): React.ReactElement {
                     }
                     setUserVote(null);
                 })
-                .catch((error) => {
-                    console.error("Error deleting vote: ", error);
+                .catch((error: Error) => {
+                    console.error("Error unvoting: ", error);
                 });
+            return;
         }
         
         if (userVote !== null) {
-            makeAuthenticatedRequest(`http://localhost:3000/api/vote/`, "PUT", {postId: parseInt(id as string), value: voteType === "upvote"})
+            updateVote({postId: parseInt(id as string), value: voteType === "upvote"})
+                .unwrap()
                 .then(() => {
                     if (voteType === "upvote") {
                         setUpvotes(upvotes + 1);
                         setDownvotes(downvotes - 1);
                     } else {
-                        setDownvotes(downvotes + 1);
                         setUpvotes(upvotes - 1);
+                        setDownvotes(downvotes + 1);
                     }
                     setUserVote(voteType);
                 })
-                .catch((error) => {
-                    console.error("Error submitting vote: ", error);
+                .catch((error: Error) => {
+                    console.error("Error updating vote: ", error);
                 });
         } else {
-            makeAuthenticatedRequest(`http://localhost:3000/api/vote/give`, "POST", {postId: parseInt(id as string), value: voteType === "upvote"})
+            giveVote({postId: parseInt(id as string), value: voteType === "upvote"})
+                .unwrap()
                 .then(() => {
                     if (voteType === "upvote") {
                         setUpvotes(upvotes + 1);
@@ -93,7 +105,7 @@ function Post(): React.ReactElement {
                     }
                     setUserVote(voteType);
                 })
-                .catch((error) => {
+                .catch((error: Error) => {
                     console.error("Error submitting vote: ", error);
                 });
         }
@@ -101,24 +113,41 @@ function Post(): React.ReactElement {
     
     const handleCommentSubmit = () => {
         const comment = (document.getElementById("comment") as HTMLInputElement).value;
-        makeAuthenticatedRequest(`http://localhost:3000/api/comment/add`, "POST", {content: comment, postId: parseInt(id as string)})
+        addComment({postId: parseInt(id as string), content: comment})
+            .unwrap()
             .then(() => {
                 setCommented(commented + 1);
             })
-            .catch((error) => {
-                console.error("Error adding comment: ", error);
+            .catch((error: Error) => {
+                console.error("Error submitting comment: ", error);
             });
     }
     
-    const handleFollow = (path: "follow" | "unfollow", method: "POST" | "DELETE") => {
+    const handleFollow = (type: "follow" | "unfollow") => {
         const authorId = document.getElementById("authorId")?.textContent;
-        makeAuthenticatedRequest(`http://localhost:3000/api/follow/${path}/${authorId}`, method, {})
-            .then(() => {
-                setFollowed(path === "follow");
-            })
-            .catch((error) => {
-                console.error("Error following user: ", error);
-            });
+        if (authorId === undefined || authorId === null) {
+            console.error("Author ID not found");
+            return;
+        } 
+        if (type === "follow") {
+            follow(authorId)
+                .unwrap()
+                .then(() => {
+                    setFollowed(true);
+                })
+                .catch((error: Error) => {
+                    console.error("Error following: ", error);
+                });
+        } else {
+            unfollow(authorId)
+                .unwrap()
+                .then(() => {
+                    setFollowed(false);
+                })
+                .catch((error: Error) => {
+                    console.error("Error unfollowing: ", error);
+                });
+        }
     }
     
     return (
@@ -132,10 +161,10 @@ function Post(): React.ReactElement {
                         </CardHeader>
                         <CardContent>
                             <p>{postRef.current?.author.email}
-                                {followed === false && <Button onClick={() => handleFollow("follow", "POST")} className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+                                {followed === false && <Button onClick={() => handleFollow("follow")} className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
                                     Follow
                                 </Button>}
-                                {followed === true && <Button onClick={() => handleFollow("unfollow", "DELETE")} className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
+                                {followed === true && <Button onClick={() => handleFollow("unfollow")} className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
                                     Unfollow
                                 </Button>}
                             </p>

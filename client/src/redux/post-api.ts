@@ -1,6 +1,7 @@
 import {createApi} from "@reduxjs/toolkit/query/react";
 import {PostRequestType, PostResponseType} from "../schemas/Post.ts";
 import customBaseQuery from "../lib/customBaseQuery.ts";
+import {AllPostsResponseType} from "../schemas/AllPosts.ts";
 
 export const postApi = createApi({
     reducerPath: "postApi",
@@ -16,7 +17,10 @@ export const postApi = createApi({
                 body,
             }),
         }),
+        getAllPosts: builder.query<AllPostsResponseType, void>({
+            query: () => `post/`
+        })
     }),
 });
 
-export const {useGetPostQuery, useCreatePostMutation} = postApi;
+export const {useGetPostQuery, useCreatePostMutation, useGetAllPostsQuery} = postApi;

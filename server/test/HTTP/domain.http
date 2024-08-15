@@ -1,9 +1,10 @@
 ### Test domain creation
 POST http://localhost:3000/api/domain/create
 Content-Type: application/json
+Authorization: Bearer {{accessToken2}}
 
 {
-    "name": "tech"
+    "name": "hasina"
 }
 
 ### Test gettting posts by domain

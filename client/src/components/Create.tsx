@@ -8,26 +8,22 @@ import {Input} from "./ui/input.tsx";
 import {DomainResponse} from "../schemas/Create.ts";
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "./ui/select.tsx";
 import {useCreatePostMutation} from "../redux/post-api.ts";
+import {useGetAllDomainsQuery} from "../redux/domain-api.ts";
 
 function Create(): React.ReactElement {
     const [message, setMessage] = React.useState<string>("");
     const [domains, setDomains] = React.useState<{ id: number, name: string }[]>([]);
     const [selectedDomain, setSelectedDomain] = React.useState<number | null>(null);
-    const [createPost] = useCreatePostMutation()
+    const [createPost] = useCreatePostMutation();
+    const { data: allDomains } = useGetAllDomainsQuery();
     
     React.useEffect(() => {
         handleAuthenticatedRoute(setMessage).then(() => {});
-        fetch(`http://localhost:3000/api/domain`, { method: "GET", })
-            .then((response) => response.json())
-            .then((data) => {
-                const domainData = DomainResponse.safeParse(data);
-                if (domainData.success) {
-                    setDomains(domainData.data);
-                } else {
-                    alert("Error fetching domains: " + domainData.error.errors);
-                }
-            })
-    }, []);
+        if (allDomains) {
+            const domains = DomainResponse.parse(allDomains);
+            setDomains(domains);
+        }
+    }, [allDomains]);
     
     const handleCreatePost = () => {
         if (!selectedDomain) {
