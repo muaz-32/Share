@@ -52,21 +52,10 @@ const updateDomain = async (req: Request<DomainParams, unknown, UpdateDomain, un
     }
 }
 
-const deleteDomain = async (req: Request<DomainParams, unknown, unknown, unknown>, res: Response) => {
-    const { id } = req.params;
-    const domain = await domainService.deleteDomain(parseInt(id));
-    if (domain) {
-        res.status(200).json(domain);
-    } else {
-        res.status(400).json({ message: "Domain deletion failed" });
-    }
-}
-
 export const domainController = {
     createDomain,
     getPostsByDomainId,
     getDomains,
     getDomainById,
     updateDomain,
-    deleteDomain,
 };
