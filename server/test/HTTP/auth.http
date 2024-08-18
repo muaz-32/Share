@@ -1,0 +1,39 @@
+### Test signup
+POST http://localhost:3000/api/user/signup
+Content-Type: application/json
+
+{
+    "email": "sdfdfjshkj@g.com",
+    "password": "123"
+}
+
+### Test login 1
+POST http://localhost:3000/api/user/login
+Content-Type: application/json
+
+{
+    "email": "a@g.com", 
+    "password": "123"
+}
+
+### Test login 2
+POST http://localhost:3000/api/user/login
+Content-Type: application/json
+
+{
+    "email": "sdfdfjshkj@g.com",
+    "password": "123"
+}
+
+### Test dashboard
+GET http://localhost:3000/api/user/dashboard
+Authorization: Bearer {{accessToken}}
+
+### Test refresh token
+POST http://localhost:3000/api/user/refresh
+Content-Type: application/json
+
+{
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTcyMzI5Mjk1NCwiZXhwIjoxNzIzMjk2NTU0fQ.lWTrZfaSauUuKlSIG7CPzBLq06QBM5QWY6KRHFlIVAs"
+}
+

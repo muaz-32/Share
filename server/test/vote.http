@@ -1,9 +1,0 @@
-### give a vote
-POST http://localhost:3000/api/vote/give
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTcyMDUwOTAwOCwiZXhwIjoxNzIwNTA5OTA4fQ.z0AedrqhSX2wXLu9_m87YjFkQexSXJXmOmbWSKIPlpA
-Content-Type: application/json
-
-{
-    "postId": 1,
-    "value": true
-}

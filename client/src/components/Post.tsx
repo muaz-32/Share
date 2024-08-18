@@ -1,67 +1,49 @@
-import React, {useEffect} from "react";
+import React, {useEffect, useRef} from "react";
 import {Card, CardContent, CardHeader, CardTitle} from "./ui/card.tsx";
 import {Input} from "./ui/input.tsx";
 import {Button} from "./ui/button.tsx";
-import {makeAuthenticatedRequest} from "../lib/auth.ts";
 import {getUserIdFromToken, handleAuthenticatedRoute} from "../lib/utils.ts";
 import Header from "./Header.tsx";
 import {useParams} from "react-router-dom";
+import {PostResponse, PostResponseType} from "../schemas/Post.ts";
+import {useGetPostQuery} from "../redux/post-api.ts";
 import Cookies from "js-cookie";
-
-type Response = {
-    id: number;
-    title: string;
-    content: string;
-    author: {
-        id: number;
-        email: string;
-    };
-    votes: {
-        id: number;
-        value: boolean;
-        postId: number;
-        userId: number;
-    }[];
-    comments: {
-        id: number;
-        content: string;
-        authorId: number;
-        postId: number;
-    }[];
-    domain: {
-        id: number;
-        name: string;
-    };
-};
+import {useGiveVoteMutation, useUnvoteMutation, useUpdateVoteMutation} from "../redux/vote-api.ts";
+import {usePostCommentMutation} from "../redux/comment-api.ts";
+import {useFollowMutation, useUnfollowMutation} from "../redux/follow-api.ts";
 
 function Post(): React.ReactElement {
     const { id } = useParams<{ id: string }>();
-    const [post, setPost] = React.useState<Response>();
     const [commented, setCommented] = React.useState<number>(0);
     const [upvotes, setUpvotes] = React.useState<number>(0);
     const [downvotes, setDownvotes] = React.useState<number>(0);
     const [userVote, setUserVote] = React.useState<"upvote" | "downvote" | null>(null);
     const [message, setMessage] = React.useState<string>("");
     const [followed, setFollowed] = React.useState<boolean | null>(null);
+    const { data: fetchedPost, refetch: refetchPost } = useGetPostQuery(id as string);
+    const postRef = useRef<PostResponseType | null>(null);
+    const [giveVote] = useGiveVoteMutation();
+    const [unvote] = useUnvoteMutation();
+    const [updateVote] = useUpdateVoteMutation();
+    const [addComment] = usePostCommentMutation();
+    const [follow] = useFollowMutation();
+    const [unfollow] = useUnfollowMutation();
     
     useEffect(() => {
         handleAuthenticatedRoute(setMessage).then(() => {});
-        
-        if (id) {
-            fetch(`http://localhost:3000/api/post/${id}`)
-                .then((response) => response.json())
-                .then((data: Response) => {
-                    setUpvotes(data.votes.filter((vote) => vote.value).length);
-                    setDownvotes(data.votes.filter((vote) => !vote.value).length);
-                    const userVoteFromDB = data.votes.find((vote) => vote.userId === getUserIdFromToken())?.value;
-                    setUserVote(userVoteFromDB ? "upvote" : userVoteFromDB === false ? "downvote" : null);
-                    setPost(data)
-                })
-                .catch((error) => {
-                    console.error("Error fetching post: ", error);
-                });
+        try {
+            refetchPost();
+            postRef.current = PostResponse.parse(fetchedPost);
+        } catch (error) {
+            alert("Error parsing post data " + error);
+            return;
         }
-        
+        const post = postRef.current;
+        setUpvotes(post.votes.filter((vote) => vote.value).length);
+        setDownvotes(post.votes.filter((vote) => !vote.value).length);
+        const userVoteFromDB = post.votes.find((vote) => vote.userId === getUserIdFromToken())?.value;
+        setUserVote(userVoteFromDB ? "upvote" : userVoteFromDB === false ? "downvote" : null);
+
         fetch(`http://localhost:3000/api/follow/is-following/${id}`,{
             method: "GET",
             headers: {
@@ -75,11 +57,13 @@ function Post(): React.ReactElement {
             .catch((error) => {
                 console.error("Error checking if following: ", error);
             });
-    }, [commented]);
+        
+    }, [commented, id, fetchedPost, refetchPost]);
 
     const handleVote = (voteType: "upvote" | "downvote") => {
         if (userVote === voteType) {
-            makeAuthenticatedRequest(`http://localhost:3000/api/vote/`, "DELETE", {postId: id})
+            unvote({postId: parseInt(id as string)})
+                .unwrap()
                 .then(() => {
                     if (voteType === "upvote") {
                         setUpvotes(upvotes - 1);
@@ -88,28 +72,31 @@ function Post(): React.ReactElement {
                     }
                     setUserVote(null);
                 })
-                .catch((error) => {
-                    console.error("Error deleting vote: ", error);
+                .catch((error: Error) => {
+                    console.error("Error unvoting: ", error);
                 });
+            return;
         }
         
         if (userVote !== null) {
-            makeAuthenticatedRequest(`http://localhost:3000/api/vote/`, "PUT", {postId: id, value: voteType === "upvote"})
+            updateVote({postId: parseInt(id as string), value: voteType === "upvote"})
+                .unwrap()
                 .then(() => {
                     if (voteType === "upvote") {
                         setUpvotes(upvotes + 1);
                         setDownvotes(downvotes - 1);
                     } else {
-                        setDownvotes(downvotes + 1);
                         setUpvotes(upvotes - 1);
+                        setDownvotes(downvotes + 1);
                     }
                     setUserVote(voteType);
                 })
-                .catch((error) => {
-                    console.error("Error submitting vote: ", error);
+                .catch((error: Error) => {
+                    console.error("Error updating vote: ", error);
                 });
         } else {
-            makeAuthenticatedRequest(`http://localhost:3000/api/vote/give`, "POST", {postId: id, value: voteType === "upvote"})
+            giveVote({postId: parseInt(id as string), value: voteType === "upvote"})
+                .unwrap()
                 .then(() => {
                     if (voteType === "upvote") {
                         setUpvotes(upvotes + 1);
@@ -118,7 +105,7 @@ function Post(): React.ReactElement {
                     }
                     setUserVote(voteType);
                 })
-                .catch((error) => {
+                .catch((error: Error) => {
                     console.error("Error submitting vote: ", error);
                 });
         }
@@ -126,24 +113,41 @@ function Post(): React.ReactElement {
     
     const handleCommentSubmit = () => {
         const comment = (document.getElementById("comment") as HTMLInputElement).value;
-        makeAuthenticatedRequest(`http://localhost:3000/api/comment/add`, "POST", {content: comment, postId: id})
+        addComment({postId: parseInt(id as string), content: comment})
+            .unwrap()
             .then(() => {
                 setCommented(commented + 1);
             })
-            .catch((error) => {
-                console.error("Error adding comment: ", error);
+            .catch((error: Error) => {
+                console.error("Error submitting comment: ", error);
             });
     }
     
-    const handleFollow = (path: string) => {
+    const handleFollow = (type: "follow" | "unfollow") => {
         const authorId = document.getElementById("authorId")?.textContent;
-        makeAuthenticatedRequest(`http://localhost:3000/api/follow/${path}/${authorId}`, "POST", )
-            .then(() => {
-                setFollowed(path === "follow");
-            })
-            .catch((error) => {
-                console.error("Error following user: ", error);
-            });
+        if (authorId === undefined || authorId === null) {
+            console.error("Author ID not found");
+            return;
+        } 
+        if (type === "follow") {
+            follow(authorId)
+                .unwrap()
+                .then(() => {
+                    setFollowed(true);
+                })
+                .catch((error: Error) => {
+                    console.error("Error following: ", error);
+                });
+        } else {
+            unfollow(authorId)
+                .unwrap()
+                .then(() => {
+                    setFollowed(false);
+                })
+                .catch((error: Error) => {
+                    console.error("Error unfollowing: ", error);
+                });
+        }
     }
     
     return (
@@ -153,10 +157,10 @@ function Post(): React.ReactElement {
                 <div className="grid gap-4 md:gap-8 lg:grid-cols-2 xl:grid-cols-3">
                     <Card>
                         <CardHeader>
-                            <CardTitle>{post?.title}</CardTitle>
+                            <CardTitle>{postRef.current?.title}</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <p>{post?.author.email}
+                            <p>{postRef.current?.author.email}
                                 {followed === false && <Button onClick={() => handleFollow("follow")} className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
                                     Follow
                                 </Button>}
@@ -164,8 +168,8 @@ function Post(): React.ReactElement {
                                     Unfollow
                                 </Button>}
                             </p>
-                            <p id={"authorId"} className={"hidden"}>{post?.author.id}</p>
-                            <p>{post?.content}</p>
+                            <p id={"authorId"} className={"hidden"}>{postRef.current?.author.id}</p>
+                            <p>{postRef.current?.content}</p>
                             <div className="flex justify-between items-center mt-4">
                                 <Button onClick={() => handleVote('upvote')} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                                     Upvote {upvotes}
@@ -179,7 +183,7 @@ function Post(): React.ReactElement {
                                 Submit Comment
                             </Button>
                             <div className="mt-4">
-                                {post?.comments.map((comment) => (
+                                {postRef.current?.comments.map((comment) => (
                                     <div key={comment.id} className="border p-4 rounded">
                                         <p>{comment.content}</p>
                                     </div>

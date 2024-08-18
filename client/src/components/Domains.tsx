@@ -5,11 +5,12 @@ import {Label} from "./ui/label.tsx";
 import {Input} from "./ui/input.tsx";
 import {Button} from "./ui/button.tsx";
 import {handleAuthenticatedRoute} from "../lib/utils.ts";
-import Cookies from "js-cookie";
+import {useCreateDomainMutation} from "../redux/domain-api.ts";
 
 function Domains(): React.ReactElement {
     const [message, setMessage] = React.useState<string>("");
-
+    const [createDomain] = useCreateDomainMutation();
+    
     React.useEffect(() => {
         handleAuthenticatedRoute(setMessage).then(() => {});
     }, []);
@@ -18,22 +19,14 @@ function Domains(): React.ReactElement {
         const data = {
             name: (document.getElementById("title") as HTMLInputElement).value,
         };
-        const response = await fetch(
-            `http://localhost:3000/api/domain/create`,
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${Cookies.get("accessToken")}`,
-                },
-                body: JSON.stringify(data),
-            }
-        );
-        const json = await response.json();
-        if (json.error) {
-            alert(json.error);
-        }
-        
+        createDomain(data)
+            .unwrap()
+            .then(() => {
+                alert("Domain created successfully");
+            })
+            .catch(() => {
+                alert("Failed to create domain");
+            });
     }
     
     return (

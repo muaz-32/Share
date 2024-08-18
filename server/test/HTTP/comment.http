@@ -1,0 +1,25 @@
+### Test adding a comment
+POST http://localhost:3000/api/comment/add
+Content-Type: application/json
+Authorization: Bearer {{accessToken2}}
+
+{
+    "content": "This is a comment",
+    "postId": 1
+}
+
+### Test updating a comment
+PUT http://localhost:3000/api/comment/9
+Content-Type: application/json
+Authorization: Bearer {{accessToken2}}
+
+{
+    "content": "This is an updated comment"
+}
+
+### Test deleting a comment
+DELETE http://localhost:3000/api/comment/9
+Authorization: Bearer {{accessToken2}}
+
+### Test getting comment count for a post
+GET http://localhost:3000/api/comment/count/1

@@ -1,7 +1,8 @@
 import { Request, Response } from "express";
 import {voteService} from "../services/vote";
+import {DeleteVote, GiveVote, UpdateVote, VoteParams} from "../schemas/vote";
 
-const giveVote = async (req: Request, res: Response) => {
+const giveVote = async (req: Request<unknown, unknown, GiveVote, unknown>, res: Response) => {
     const { postId, value } = req.body;
     const vote = await voteService.giveVote(value, postId, req.userId);
     if (vote) {
@@ -11,7 +12,7 @@ const giveVote = async (req: Request, res: Response) => {
     }
 }
 
-const updateVote = async (req: Request, res: Response) => {
+const updateVote = async (req: Request<unknown, unknown, UpdateVote, unknown>, res: Response) => {
     const { postId, value } = req.body;
     const vote = await voteService.updateVote(postId, value, req.userId);
     if (vote) {
@@ -21,7 +22,7 @@ const updateVote = async (req: Request, res: Response) => {
     }
 }
 
-const deleteVote = async (req: Request, res: Response) => {
+const deleteVote = async (req: Request<unknown, unknown, DeleteVote, unknown>, res: Response) => {
     const { postId } = req.body;
     const vote = await voteService.deleteVote(postId, req.userId);
     if (vote) {
@@ -31,7 +32,7 @@ const deleteVote = async (req: Request, res: Response) => {
     }
 }
 
-const getVoteCount = async (req: Request, res: Response) => {
+const getVoteCount = async (req: Request<VoteParams, unknown, unknown, unknown>, res: Response) => {
     const { postId } = req.params;
     const count = await voteService.getVoteCount(parseInt(postId));
     if (count) {
@@ -41,7 +42,7 @@ const getVoteCount = async (req: Request, res: Response) => {
     }
 }
 
-const netVote = async (req: Request, res: Response) => {
+const netVote = async (req: Request<VoteParams, unknown, unknown, unknown>, res: Response) => {
     const {postId} = req.params;
     const net = await voteService.netVote(parseInt(postId));
     if (net) {

@@ -5,27 +5,18 @@ import {Label} from "./ui/label.tsx";
 import {Input} from "./ui/input.tsx";
 import {Button} from "./ui/button.tsx";
 import {makeAuthenticatedRequest, setTokensInCookies} from "../lib/auth.ts";
-
-type Inputs = {
-  email: string;
-  password: string;
-};
-
-type Response = {
-  accessToken: string;
-  refreshToken: string;
-};
-
-type TokenValidationResponse = {
-    message: string;
-};
+import {
+    AuthInputs,
+    AuthInputsType, 
+    AuthResponse
+} from "../schemas/Auth.ts";
 
 function Auth(): React.ReactElement {
   const [isLogin, setIsLogin] = useState<boolean>(true);
 
   React.useEffect(() => {
     if (Cookies.get("accessToken") && Cookies.get("refreshToken")) {
-        makeAuthenticatedRequest<TokenValidationResponse>("http://localhost:3000/api/user/dashboard", "GET")
+        makeAuthenticatedRequest("http://localhost:3000/api/user/dashboard", "GET")
             .then(() => {
                 window.location.replace("/dashboard");
             })
@@ -35,7 +26,12 @@ function Auth(): React.ReactElement {
     }
   }, []);
   
-  const handleAuth = async (data: Inputs) => {
+  const handleAuth = async (data: AuthInputsType) => {
+    const authData = AuthInputs.safeParse(data);
+    if (!authData.success) {
+        alert("Invalid data");
+        return;
+    }
     const response = await fetch(
       `http://localhost:3000/api/user/${isLogin ? "login" : "signup"}`,
       {
@@ -46,9 +42,15 @@ function Auth(): React.ReactElement {
         body: JSON.stringify(data),
       }
     );
-    const json: Response = await response.json();
-    setTokensInCookies(json.accessToken, json.refreshToken);
+    const json = await response.json();
+    const authResponse = AuthResponse.safeParse(json);
+    if (!authResponse.success) {
+        alert("Error authenticating: " + authResponse.error.errors);
+        return;
+    }
+    setTokensInCookies(authResponse.data.accessToken, authResponse.data.refreshToken);
     window.location.replace("/dashboard");
+    
   }
   
   const toggleForm = () => {

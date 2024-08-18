@@ -20,15 +20,10 @@ const updateDomain = async (id: number, name: string) => {
     return domainRepository.updateDomain(id, { name });
 }
 
-const deleteDomain = async (id: number) => {
-    return domainRepository.deleteDomain(id);
-}
-
 export const domainService = {
     createDomain,
     getPostsByDomainId,
     getDomains,
     getDomainById,
     updateDomain,
-    deleteDomain,
 };

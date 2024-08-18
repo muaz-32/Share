@@ -1,7 +1,8 @@
 import { Request, Response } from "express";
 import {postService} from "../services/post";
+import {CreatePost, PostParams, UpdatePost} from "../schemas/post";
 
-const createPost = async (req: Request, res: Response) => {
+const createPost = async (req: Request<unknown, unknown, CreatePost, unknown>, res: Response) => {
     const { title, content, domainId } = req.body;
     const post = await postService.createPost(title, content, req.userId, domainId);
     if (post) {
@@ -11,7 +12,7 @@ const createPost = async (req: Request, res: Response) => {
     }
 }
 
-const getPostById = async (req: Request, res: Response) => {
+const getPostById = async (req: Request<PostParams, unknown, unknown, unknown>, res: Response) => {
     const { id } = req.params;
     const post = await postService.getPostById(parseInt(id));
     if (post) {
@@ -21,7 +22,7 @@ const getPostById = async (req: Request, res: Response) => {
     }
 }
 
-const getAllPosts = async (req: Request, res: Response) => {
+const getAllPosts = async (req: Request<unknown, unknown, unknown, unknown>, res: Response) => {
     const posts = await postService.getAllPosts();
     if (posts) {
         res.status(200).json(posts);
@@ -30,20 +31,10 @@ const getAllPosts = async (req: Request, res: Response) => {
     }
 }
 
-const updatePost = async (req: Request, res: Response) => {
+const updatePost = async (req: Request<PostParams, unknown, UpdatePost, unknown>, res: Response) => {
     const { id } = req.params;
     const { title, content, domainId } = req.body;
     const post = await postService.updatePost(parseInt(id), title, content, domainId, req.userId);
-    if (post) {
-        res.status(200).json(post);
-    } else {
-        res.status(404).json({ message: "Post not found" });
-    }
-}
-
-const deletePost = async (req: Request, res: Response) => {
-    const { id } = req.params;
-    const post = await postService.deletePost(parseInt(id), req.userId);
     if (post) {
         res.status(200).json(post);
     } else {
@@ -56,5 +47,4 @@ export const postController = {
     getPostById,
     getAllPosts,
     updatePost,
-    deletePost,
 };
