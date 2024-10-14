@@ -1,0 +1,19 @@
+### Test following a user
+POST http://localhost:3000/api/follow/follow/1
+Authorization: Bearer {{accessToken2}}
+
+### Test unfollowing a user
+DELETE http://localhost:3000/api/follow/unfollow/1
+Authorization: Bearer {{accessToken2}}
+
+### Test getting followers
+GET http://localhost:3000/api/follow/followers
+Authorization: Bearer {{accessToken}}
+
+### Test getting followings
+GET http://localhost:3000/api/follow/followings
+Authorization: Bearer {{accessToken2}}
+
+### Test getting is following
+GET http://localhost:3000/api/follow/is-following/1
+Authorization: Bearer {{accessToken2}}
